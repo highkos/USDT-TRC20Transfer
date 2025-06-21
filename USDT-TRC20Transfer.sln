@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36212.18 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "USDT-TRC20Transfer", "USDT-TRC20Transfer\USDT-TRC20Transfer.csproj", "{F62DC63D-B4FD-468B-AFD0-B512856DE24D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "USDT_TRC20Transfer", "USDT-TRC20Transfer\USDT_TRC20Transfer.csproj", "{F62DC63D-B4FD-468B-AFD0-B512856DE24D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

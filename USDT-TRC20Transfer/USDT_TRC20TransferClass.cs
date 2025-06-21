@@ -22,7 +22,7 @@ namespace USDT_TRC20Transfer
     public class USDT_TRC20TransferClass
     {
         private static readonly HttpClient httpClient = new HttpClient();
-        private static IConfiguration ProgramConfiguration => TRX_TRC20Transfer.Program.Configuration;
+        private static IConfiguration ProgramConfiguration => USDT_TRC20Transfer.Program.Configuration;
 
         /// <summary>
         /// Runs a production USDT TRC20 transfer with user input for parameters

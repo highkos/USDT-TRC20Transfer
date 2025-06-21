@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using System.IO;
 using USDT_TRC20Transfer;
 
-namespace TRX_TRC20Transfer
+namespace USDT_TRC20Transfer
 {
     class Program
     {
