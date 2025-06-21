@@ -43,7 +43,7 @@ namespace USDT_TRC20Transfer
             // Confirm sender address
             if (!ConfirmSenderAddress(senderAddress))
             {
-                Console.WriteLine("Transfer iptal edildi.");
+                Console.WriteLine("Transfer iptal edildi. ");
                 return;
             }
 
