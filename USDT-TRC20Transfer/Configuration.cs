@@ -4,7 +4,7 @@ namespace USDT_TRC20Transfer
 {
     public static class Configuration
     {
-        private static IConfiguration Config => TRX_TRC20Transfer.Program.Configuration;
+        private static IConfiguration Config => USDT_TRC20Transfer.Program.Configuration;
 
         // API Endpoints from configuration
         public static string MAINNET_API => Config?["ApiEndpoints:TronGrid:Mainnet"] ?? "https://api.trongrid.io";

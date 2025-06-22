@@ -16,6 +16,8 @@
     <PackageReference Include="Nethereum.Signer" Version="5.0.0" />
     <PackageReference Include="SimpleBase" Version="5.4.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="TronDotNet" Version="2.6.0" />
+    <PackageReference Include="TronSharp.Crypto" Version="1.0.1" />
   </ItemGroup>
 
 </Project>

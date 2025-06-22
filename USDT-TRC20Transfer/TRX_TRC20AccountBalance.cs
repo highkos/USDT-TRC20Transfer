@@ -19,7 +19,7 @@ namespace USDT_TRC20Transfer
         public TRX_TRC20AccountBalance()
         {
             _httpClient = new HttpClient();
-            _configuration = TRX_TRC20Transfer.Program.Configuration;
+            _configuration = USDT_TRC20Transfer.Program.Configuration;
 
             // Get default wallet address from configuration
             WalletAddress = _configuration?["DefaultWallet"] ?? "TCVb2hz7ULDn2LjsuJpUZCisr963hhXswF";
@@ -28,7 +28,7 @@ namespace USDT_TRC20Transfer
         public TRX_TRC20AccountBalance(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _configuration = TRX_TRC20Transfer.Program.Configuration;
+            _configuration = USDT_TRC20Transfer.Program.Configuration;
 
             // Get default wallet address from configuration
             WalletAddress = _configuration?["DefaultWallet"] ?? "TCVb2hz7ULDn2LjsuJpUZCisr963hhXswF";
