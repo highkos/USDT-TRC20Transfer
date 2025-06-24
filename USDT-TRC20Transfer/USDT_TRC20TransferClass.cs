@@ -250,15 +250,15 @@ namespace USDT_TRC20Transfer
 
                 // Sign transaction with improved signature method
                 Console.WriteLine("Signing transaction...");
-                JObject signedTx = SignTransaction(transaction, fromPrivateKey);
+                JObject signedTx = SignTransaction(transaction, fromPrivateKey, isTestnet);
 
                 // Broadcast transaction
                 Console.WriteLine("Broadcasting transaction...");
-                string txId = await BroadcastTransaction(signedTx, apiUrl);
+                string txId = await BroadcastTransaction(signedTx, apiUrl, isTestnet);
 
                 // Check if transaction was successful
                 Console.WriteLine($"Transaction sent! Checking status...");
-                bool txSuccess = await VerifyTransactionStatus(txId, apiUrl);
+                bool txSuccess = await VerifyTransactionStatus(txId, apiUrl, isTestnet);
 
                 if (!txSuccess)
                 {
@@ -601,11 +601,18 @@ namespace USDT_TRC20Transfer
         /// <summary>
         /// Improved implementation for signing TRON transactions
         /// </summary>
-        private static JObject SignTransaction(JObject transaction, string privateKeyHex)
+        private static JObject SignTransaction(JObject transaction, string privateKeyHex, bool isTestnet = false)
         {
             try
             {
-                Console.WriteLine("📝 Using enhanced transaction signing method");
+                if (isTestnet)
+                {
+                    Console.WriteLine("📝 Using enhanced transaction signing method for TESTNET (Base58 format)");
+                }
+                else
+                {
+                    Console.WriteLine("📝 Using enhanced transaction signing method");
+                }
                 
                 // Clean private key by removing any 0x prefix
                 if (privateKeyHex.StartsWith("0x"))
@@ -638,15 +645,22 @@ namespace USDT_TRC20Transfer
                 
                 Console.WriteLine($"🔍 Signature (hex): {signatureHex}");
                 
+                // Ensure visible=true for all transactions, especially important for testnet
                 // Clone the original transaction and add signature
                 JObject signedTx = new JObject
                 {
-                    ["visible"] = true,
+                    ["visible"] = true, // Critical for using Base58 addresses with API - especially for testnet
                     ["txID"] = transaction["txID"],
                     ["raw_data"] = transaction["raw_data"],
                     ["raw_data_hex"] = rawDataHex,
                     ["signature"] = new JArray(signatureHex)
                 };
+
+                // For testnet, emphasize that we're using Base58 format
+                if (isTestnet)
+                {
+                    Console.WriteLine("🔄 TESTNET transaction using Base58 addresses - visible flag set to true");
+                }
 
                 return signedTx;
             }
@@ -659,10 +673,15 @@ namespace USDT_TRC20Transfer
         /// <summary>
         /// Broadcasts a signed transaction to the TRON network
         /// </summary>
-        private static async Task<string> BroadcastTransaction(JObject signedTransaction, string apiUrl)
+        private static async Task<string> BroadcastTransaction(JObject signedTransaction, string apiUrl, bool isTestnet = false)
         {
-            // Ensure visible=true is set for the signed transaction
+            // Ensure visible=true is set for the signed transaction (especially important for testnet)
             signedTransaction["visible"] = true;
+
+            if (isTestnet)
+            {
+                Console.WriteLine("🔄 Broadcasting TESTNET transaction with visible=true for Base58 addresses");
+            }
 
             string json = JsonConvert.SerializeObject(signedTransaction);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -691,7 +710,7 @@ namespace USDT_TRC20Transfer
         /// <summary>
         /// Verifies the transaction status after broadcasting
         /// </summary>
-        private static async Task<bool> VerifyTransactionStatus(string txId, string apiUrl)
+        private static async Task<bool> VerifyTransactionStatus(string txId, string apiUrl, bool isTestnet = false)
         {
             // Wait a bit to allow the blockchain to process the transaction
             await Task.Delay(2000);
@@ -703,8 +722,14 @@ namespace USDT_TRC20Transfer
             {
                 try
                 {
-                    // Query transaction info
+                    // Query transaction info - ensure visible=true for Base58 addresses
                     var requestBody = new { value = txId, visible = true };
+                    
+                    if (isTestnet)
+                    {
+                        Console.WriteLine("🔄 Verifying TESTNET transaction with visible=true for Base58 addresses");
+                    }
+                    
                     string json = JsonConvert.SerializeObject(requestBody);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
 

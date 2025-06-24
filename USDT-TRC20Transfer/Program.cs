@@ -70,7 +70,7 @@ namespace USDT_TRC20Transfer
                             break;
                         case "5":
                             // Test USDT Transferi (TestNet) - doğrudan TestNet kullanır
-                            await RunTestNetTransfer();
+                            await RunTestNetTransferWithSignatureCheck();
                             break;
                         case "6":
                             // Ağ seçimli USDT transferi
@@ -340,14 +340,41 @@ namespace USDT_TRC20Transfer
             }
         }
         
-        // Testnet USDT Transfer
-        private static async Task RunTestNetTransfer()
+        // Testnet USDT Transfer with Signature Check
+        private static async Task RunTestNetTransferWithSignatureCheck()
         {
-            Console.WriteLine("🔷 USDT (TRC20) Test Transferi - TESTNET (Shasta)");
-            Console.WriteLine("------------------------------------------------");
+            Console.WriteLine("🔷 USDT (TRC20) Test Transferi - TESTNET (Shasta) - İmza Doğrulama ile");
+            Console.WriteLine("----------------------------------------------------------------------");
             
             Console.Write("Gönderici (From) özel anahtarını girin: ");
             string fromPrivateKey = ConsoleReadLineMasked();
+            
+            // İmza doğrulama işlemi
+            Console.WriteLine("\n🔐 Özel anahtar ile imza doğrulaması yapılıyor...");
+            bool signatureValid = await Task.Run(() => PerformSignatureVerification(fromPrivateKey));
+            
+            if (!signatureValid)
+            {
+                Console.WriteLine("\n⚠️ İmza doğrulaması başarısız oldu. İşleme devam etmek istiyor musunuz? (E/H): ");
+                string continueAnyway = Console.ReadLine()?.Trim().ToUpper() ?? "H";
+                
+                if (continueAnyway != "E")
+                {
+                    Console.WriteLine("\n❌ İşlem iptal edildi.");
+                    return;
+                }
+                
+                Console.WriteLine("\n⚠️ Uyarıya rağmen işleme devam ediliyor. İşlem başarısız olabilir!");
+            }
+            else
+            {
+                Console.WriteLine("\n✅ İmza doğrulaması başarılı. İşleme devam ediliyor.");
+            }
+            
+            // Adres oluşturma
+            var addrResult = TronAddressVerifier.GenerateAndVerifyTronAddress(fromPrivateKey);
+            string fromAddress = addrResult.GeneratedAddress;
+            Console.WriteLine($"\n📬 Gönderici adresi: {fromAddress}");
             
             Console.Write("Alıcı (To) adresini girin: ");
             string toAddress = Console.ReadLine()?.Trim() ?? "";
@@ -358,10 +385,6 @@ namespace USDT_TRC20Transfer
                 Console.WriteLine("❌ Geçersiz miktar! Transfer işlemi iptal edildi.");
                 return;
             }
-            
-            // özel anahtardan adres üretme
-            var addrResult = TronAddressVerifier.GenerateAndVerifyTronAddress(fromPrivateKey);
-            string fromAddress = addrResult.GeneratedAddress;
             
             Console.WriteLine($"\n💱 Transfer Detayları:");
             Console.WriteLine($"Gönderen: {fromAddress}");
@@ -393,6 +416,48 @@ namespace USDT_TRC20Transfer
                 {
                     Console.WriteLine($"   Detay: {ex.InnerException.Message}");
                 }
+            }
+        }
+
+        // Özel anahtar ile imza doğrulaması yapan metot
+        private static bool PerformSignatureVerification(string privateKey)
+        {
+            try
+            {
+                Console.WriteLine("🔐 İmza doğrulama işlemi başlatılıyor...");
+                Console.WriteLine("Bu işlem, TRON ağına gönderilecek imzaların doğru şekilde oluşturulabildiğini test eder.");
+                
+                // İmza test mesajı - transfer için özelleştirilmiş
+                string testMessage = $"TRON_TESTNET_TRANSFER_VERIFICATION_{DateTime.UtcNow:yyyy-MM-dd}";
+                Console.WriteLine($"Test mesajı: \"{testMessage}\"");
+                
+                // İmza testi yapılıyor
+                bool signatureResult = TronSignature.TestSignature(privateKey, testMessage);
+                
+                if (signatureResult)
+                {
+                    Console.WriteLine("\n✅ İmza doğrulaması BAŞARILI!");
+                    Console.WriteLine("Özel anahtarınız ile geçerli bir TRON imzası oluşturabilirsiniz.");
+                    Console.WriteLine("Transfer işlemi için imza doğrulaması geçildi.");
+                }
+                else
+                {
+                    Console.WriteLine("\n❌ İmza doğrulaması BAŞARISIZ!");
+                    Console.WriteLine("Özel anahtarınız ile geçerli bir TRON imzası oluşturulamadı.");
+                    Console.WriteLine("Bu durum transfer sırasında sorunlara yol açabilir.");
+                    Console.WriteLine("Özel anahtarınızı kontrol edin ve tekrar deneyin.");
+                }
+                
+                return signatureResult;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n❌ İmza doğrulama sırasında bir hata oluştu: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"   Ayrıntı: {ex.InnerException.Message}");
+                }
+                return false;
             }
         }
 
